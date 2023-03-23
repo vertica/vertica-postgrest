@@ -88,7 +88,7 @@ baseCfg = let secret = Just $ encodeUtf8 "reallyreallyreallyreallyverysafe" in
   , configDbRootSpec            = Nothing
   , configDbSchemas             = fromList ["test"]
   , configDbConfig              = False
-  , configDbUri                 = "postgresql://"
+  , configDbUri                 = "postgres://authenticator:mysecretpassword@localhost:5433/verticadb21214"
   , configDbUseLegacyGucs       = True
   , configFilePath              = Nothing
   , configJWKS                  = parseSecret <$> secret
