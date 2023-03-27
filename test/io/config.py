@@ -20,7 +20,7 @@ def dburi():
     dbname = os.environ["PGDATABASE"]
     host = os.environ["PGHOST"]
     user = os.environ["PGUSER"]
-    return f"postgresql://?dbname={dbname}&host={host}&user={user}".encode()
+    return f"postgres://authenticator:mysecretpassword@localhost:5433/verticadb21214".encode()
 
 
 @pytest.fixture

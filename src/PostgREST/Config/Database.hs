@@ -25,7 +25,7 @@ queryPgVersion = statement mempty pgVersionStatement
 pgVersionStatement :: SQL.Statement () PgVersion
 pgVersionStatement = SQL.Statement sql HE.noParams versionRow False
   where
-    sql = "SELECT current_setting('server_version_num')::integer, current_setting('server_version')"
+    sql = "SELECT 0, VERSION()"
     versionRow = HD.singleRow $ PgVersion <$> column HD.int4 <*> column HD.text
 
 queryDbSettings :: Bool -> Session [(Text, Text)]
@@ -42,9 +42,9 @@ dbSettingsStatement = SQL.Statement sql HE.noParams decodeSettings False
       role_setting (database, setting) AS (
         SELECT setdatabase,
                unnest(setconfig)
-          FROM pg_catalog.pg_db_role_setting
-         WHERE setrole = CURRENT_USER::regrole::oid
-           AND setdatabase IN (0, (SELECT oid FROM pg_catalog.pg_database WHERE datname = CURRENT_CATALOG))
+          FROM public.pg_db_role_setting
+         WHERE setrole = 0
+           AND setdatabase IN (0, (SELECT oid FROM public.pg_database WHERE datname = 'vertica'))
       ),
       kv_settings (database, k, v) AS (
         SELECT database,
@@ -53,11 +53,11 @@ dbSettingsStatement = SQL.Statement sql HE.noParams decodeSettings False
           FROM role_setting
          WHERE setting LIKE 'pgrst.%'
       )
-      SELECT DISTINCT ON (key)
+      SELECT DISTINCT
              replace(k, 'pgrst.', '') AS key,
              v AS value
         FROM kv_settings
-       ORDER BY key, database DESC;
+       ORDER BY key DESC;
     |]
     decodeSettings = HD.rowList $ (,) <$> column HD.text <*> column HD.text
 

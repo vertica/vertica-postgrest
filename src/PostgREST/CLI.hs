@@ -8,18 +8,18 @@ module PostgREST.CLI
   , readCLIShowHelp
   ) where
 
-import qualified Data.Aeson                 as JSON
+-- import qualified Data.Aeson                 as JSON
 import qualified Data.ByteString.Char8      as BS
-import qualified Data.ByteString.Lazy       as LBS
-import qualified Hasql.Transaction.Sessions as SQL
+-- import qualified Data.ByteString.Lazy       as LBS
+-- import qualified Hasql.Transaction.Sessions as SQL
 import qualified Options.Applicative        as O
 
-import Data.Text.IO (hPutStrLn)
+-- import Data.Text.IO (hPutStrLn)
 import Text.Heredoc (str)
 
-import PostgREST.AppState    (AppState)
+-- import PostgREST.AppState    (AppState)
 import PostgREST.Config      (AppConfig (..))
-import PostgREST.SchemaCache (querySchemaCache)
+-- import PostgREST.SchemaCache (querySchemaCache)
 import PostgREST.Version     (prettyVersion)
 import PostgREST.Workers     (reReadConfig)
 
@@ -45,10 +45,11 @@ main installSignalHandlers runAppWithSocket CLI{cliCommand, cliPath} = do
       CmdDumpConfig -> do
         when configDbConfig $ reReadConfig True appState
         putStr . Config.toText =<< AppState.getConfig appState
-      CmdDumpSchema -> putStrLn =<< dumpSchema appState
+      CmdDumpSchema -> pure () -- putStrLn =<< dumpSchema appState
       CmdRun -> App.run installSignalHandlers runAppWithSocket appState)
 
 -- | Dump SchemaCache schema to JSON
+{-
 dumpSchema :: AppState -> IO LBS.ByteString
 dumpSchema appState = do
   AppConfig{..} <- AppState.getConfig appState
@@ -65,6 +66,7 @@ dumpSchema appState = do
       hPutStrLn stderr $ "An error ocurred when loading the schema cache:\n" <> show e
       exitFailure
     Right sCache -> return $ JSON.encode sCache
+-}
 
 -- | Command line interface options
 data CLI = CLI

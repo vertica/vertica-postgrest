@@ -13,7 +13,7 @@ import qualified Data.ByteString            as BS
 import qualified Data.Text                  as T
 import qualified Hasql.Notifications        as SQL
 import qualified Hasql.Session              as SQL
-import qualified Hasql.Transaction.Sessions as SQL
+-- import qualified Hasql.Transaction.Sessions as SQL
 import qualified Network.HTTP.Types.Status  as HTTP
 import qualified Network.Wai                as Wai
 import qualified Network.Wai.Handler.Warp   as Warp
@@ -28,9 +28,9 @@ import Network.Socket.ByteString
 import PostgREST.AppState         (AppState)
 import PostgREST.Config           (AppConfig (..), readAppConfig)
 import PostgREST.Config.Database  (queryDbSettings, queryPgVersion)
-import PostgREST.Config.PgVersion (PgVersion (..), minimumPgVersion)
+import PostgREST.Config.PgVersion (PgVersion (..))
 import PostgREST.Error            (checkIsFatal)
-import PostgREST.SchemaCache      (querySchemaCache)
+-- import PostgREST.SchemaCache      (querySchemaCache)
 
 import qualified PostgREST.AppState as AppState
 
@@ -45,10 +45,12 @@ data ConnectionStatus
   deriving (Eq)
 
 -- | Schema cache status
+{-
 data SCacheStatus
   = SCLoaded
   | SCOnRetry
   | SCFatalFail
+-}
 
 -- | The purpose of this worker is to obtain a healthy connection to pg and an
 -- up-to-date schema cache(SchemaCache).  This method is meant to be called
@@ -91,7 +93,7 @@ connectionWorker appState = do
           -- this could be fail because the connection drops, but the
           -- loadSchemaCache will pick the error and retry again
           when configDbConfig $ reReadConfig False appState
-          scStatus <- loadSchemaCache appState
+          {- scStatus <- loadSchemaCache appState
           case scStatus of
             SCLoaded ->
               -- do nothing and proceed if the load was successful
@@ -102,6 +104,7 @@ connectionWorker appState = do
             SCFatalFail ->
               -- die if our schema cache query has an error
               killThread $ AppState.getMainThreadId appState
+          -}
 
 -- | Repeatedly flush the pool, and check if a connection from the
 -- pool allows access to the PostgreSQL database.
@@ -134,12 +137,12 @@ establishConnection appState =
             Nothing ->
               return NotConnected
         Right version ->
-          if version < minimumPgVersion then
+          {--if version < minimumPgVersion then
             return . FatalConnectionError $
               "Cannot run in this PostgreSQL version, PostgREST needs at least "
               <> pgvName minimumPgVersion
-          else
-            return . Connected  $ version
+          else--}
+          return . Connected  $ version
 
     shouldRetry :: RetryStatus -> ConnectionStatus -> IO Bool
     shouldRetry rs isConnSucc = do
@@ -154,6 +157,7 @@ establishConnection appState =
       return itShould
 
 -- | Load the SchemaCache by using a connection from the pool.
+{-
 loadSchemaCache :: AppState -> IO SCacheStatus
 loadSchemaCache appState = do
   AppConfig{..} <- AppState.getConfig appState
@@ -179,6 +183,7 @@ loadSchemaCache appState = do
       AppState.putSchemaCache appState (Just sCache)
       AppState.logWithZTime appState "Schema cache loaded"
       return SCLoaded
+-}
 
 runListener :: AppConfig -> AppState -> IO ()
 runListener AppConfig{configDbChannelEnabled} appState =
